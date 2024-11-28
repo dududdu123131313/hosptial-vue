@@ -1,7 +1,17 @@
 <!-- RegistrationComponent.vue -->
 <template>
+
   <div class="container">
     <h1 class="title">预约挂号</h1>
+    
+    <div>
+       <!-- 医生姓名查询 -->
+       <div class="selection-row">
+        <span>医生姓名：</span>
+        <input type="text" v-model="searchDoctorName" class="selection-input" />
+        <button class="query-button" @click="searchDoctorByName">查询医生</button>
+      </div>
+    </div>
     <div class="selection-container">
       <!-- 选择科室 -->
       <div class="selection-row">
@@ -27,9 +37,12 @@
         </button>
         <input type="text" v-model="selectedDate" class="selection-input" />
       </div>
-    </div>
     <!-- 查询按钮 -->
     <button class="query-button" @click="handleQuery">查询</button>
+    </div>
+
+  
+
     <!-- 结果容器 -->
     <div class="results-container">
       <div class="results" v-if="doctors.length">
@@ -56,14 +69,16 @@ export default {
   },
   data() {
     return {
-      departments: ['神经内科', '眼病诊疗中心', '肿瘤中心', '心血管内科', '血液内科', '内分泌科', '肾内科', '消化内科', '疼痛科', '骨科'],
-      types: ['专家', '普通', '帕金森专病门诊', '眩晕门诊'],
+      departments: ['康复科','普外科','中医科','眼科','口腔科','皮肤科','骨科','风湿免疫科','肿瘤科','心内科','传染科','妇产科','呼吸内科',
+      '儿科','血液科','泌尿外科','耳鼻喉科','神经内科','急诊科','内分泌科'],
+      types: ['专家门诊', '普通门诊'],
       selectedDepartment: '',
       selectedType: '',
       selectedDate: '',
       dates: [],
       doctors: [],
-      showResults: false
+      showResults: false,
+      searchDoctorName: '' 
     };
   },
   created() {
@@ -80,7 +95,7 @@ export default {
       this.selectedDate = date;
     },
     handleQuery() {
-      axios.get('/api/doctors', {
+      axios.get('/doctors/department/康复科', {
         params: {
           department: this.selectedDepartment,
           type: this.selectedType,
@@ -93,6 +108,20 @@ export default {
       })
       .catch(error => {
         console.error('Error fetching doctor info:', error);
+      });
+    },
+    searchDoctorByName() {
+      axios.get('/doctors/search', {
+        params: {
+          name: this.searchDoctorName
+        }
+      })
+      .then(response => {
+        this.doctors = response.data;
+        this.showResults = true;
+      })
+      .catch(error => {
+        console.error('Error searching doctor by name:', error);
       });
     },
     generateDates(days) {
@@ -141,6 +170,19 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  flex-wrap: wrap; /* 允许子元素换行 */
+}
+
+.selection-row button {
+  padding: 8px 16px; /* 按钮内边距 */
+  margin: 4px; /* 按钮外边距 */
+  border: 1px solid #ccc; /* 按钮边框 */
+  border-radius: 4px; /* 按钮圆角 */
+  background-color: #f8f8f8; /* 按钮背景颜色 */
+  cursor: pointer; /* 鼠标悬停时显示指针 */
+  flex: 1 1 auto; /* 允许按钮占据可用空间 */
+  min-width: 80px; /* 按钮的最小宽度 */
+  text-align: center; /* 文本居中 */
 }
 
 .selection-input {
@@ -156,14 +198,20 @@ export default {
   padding: 10px 20px;
   border: none;
   background-color: #3161FF;
-  color: white;
+  color:#3161FF(255, 255, 255);
   border-radius: 4px;
   cursor: pointer;
+  margin-top: 20px; /* 添加上边距 */
+  display: block; /* 使按钮表现为块级元素 */
+  margin-left: auto; /* 右边距自动 */
+  margin-right: auto; /* 左边距自动 */
+  width: fit-content; /* 宽度适应内容 */
 }
 
 .query-button:hover {
   background-color: #304add;
 }
+
 
 .results-container {
   width: 90%;

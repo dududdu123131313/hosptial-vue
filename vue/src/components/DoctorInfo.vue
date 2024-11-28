@@ -5,19 +5,18 @@
         <img :src="doctor.image" alt="doctor photo" />
         <div>
           <h3>{{ doctor.name }}</h3>
-          <p>专家医师</p>
-          <p>简介: {{ doctor.description }}</p>
+          <p>{{ doctor.department }}</p>
         </div>
       </div>
       <div class="appointment-options">
-        <div v-for="option in appointmentOptions" :key="option.time">
-          <p>{{ option.date }} {{ option.period }}</p>
-          <button @click="bookAppointment(option)">
-            预约
-            <span v-if="option.remainingSlots > 0">（剩余号数：{{ option.remainingSlots }}）</span>
-          </button>
-        </div>
-      </div>
+      <!-- 显示医生的可预约时间 -->
+      <p>可预约时间：{{ doctor.VisitTime }}</p>
+      <!-- 预约按钮 -->
+      <button @click="bookAppointment(doctor)">
+        预约
+        <span v-if="doctor.remainingNumbers > 0">（剩余号数：{{ doctor.remainingNumbers}}）</span>
+      </button>
+    </div>
       <div class="fee">挂号费 {{ doctor.fee }}元</div>
     </div>
   </template>
@@ -31,8 +30,8 @@
       }
     },
     methods: {
-      bookAppointment(option) {
-        alert(`预约${this.doctor.name}在${option.date} ${option.period}`);
+      bookAppointment() {
+        alert();
         // 在这里添加预约逻辑
       }
     }
