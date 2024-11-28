@@ -95,34 +95,37 @@ export default {
       this.selectedDate = date;
     },
     handleQuery() {
-      axios.get('/doctors/department/康复科', {
+      // 获取用户输入的科室信息，并进行编码处理，确保特殊字符能正确传递
+      const encodedDepartment = encodeURIComponent(this.selectedDepartment);
+      axios.get(`http://10.3.112.10:8088/doctors/department/${encodedDepartment}`, {
         params: {
-          department: this.selectedDepartment,
           type: this.selectedType,
           date: this.selectedDate
         }
       })
-      .then(response => {
-        this.doctors = response.data;
-        this.showResults = true;
-      })
-      .catch(error => {
-        console.error('Error fetching doctor info:', error);
-      });
+          .then(response => {
+            this.doctors = response.data;
+            this.showResults = true;
+          })
+          .catch(error => {
+            console.error('Error fetching doctor info:', error);
+          });
     },
     searchDoctorByName() {
-      axios.get('/doctors/search', {
-        params: {
-          name: this.searchDoctorName
-        }
-      })
-      .then(response => {
-        this.doctors = response.data;
-        this.showResults = true;
-      })
-      .catch(error => {
-        console.error('Error searching doctor by name:', error);
-      });
+      const name = this.searchDoctorName.trim();
+      if (!name) {
+        alert('请输入医生姓名后再进行搜索！');
+        return;
+      }
+      const encodedName = encodeURIComponent(name);
+      axios.get(`http://10.3.112.10:8088/doctors/${encodedName}`, {})
+          .then(response => {
+            this.doctors = response.data;
+            this.showResults = true;
+          })
+          .catch(error => {
+            console.error('Error searching doctor by name:', error);
+          });
     },
     generateDates(days) {
       const dates = [];
@@ -198,7 +201,7 @@ export default {
   padding: 10px 20px;
   border: none;
   background-color: #3161FF;
-  color:#3161FF(255, 255, 255);
+  color: #007bff;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 20px; /* 添加上边距 */

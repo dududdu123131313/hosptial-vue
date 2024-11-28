@@ -17,7 +17,7 @@
         <span v-if="doctor.remainingNumbers > 0">（剩余号数：{{ doctor.remainingNumbers}}）</span>
       </button>
     </div>
-      <div class="fee">挂号费 {{ doctor.fee }}元</div>
+      <div class="fee">挂号费 {{ doctor.cost }}元</div>
     </div>
   </template>
   
