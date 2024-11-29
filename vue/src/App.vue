@@ -86,6 +86,8 @@ body, html {
   margin-left: 220px; /* Adjust the margin to account for the width of the nav-bar plus padding */
   padding: 20px;
   width: 100%; /* Ensure the main content takes up the remaining space */
-  background-color: #E9EEFF;
+  
+  background: 100;
+  
 }
 </style>

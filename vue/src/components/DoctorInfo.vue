@@ -1,68 +1,168 @@
-<!-- DoctorInfo.vue -->
 <template>
+  <div class="doctor-box">
     <div class="doctor-info">
       <div class="doctor-profile">
-        <img :src="doctor.image" alt="doctor photo" />
+        <img :src="doctorImage" alt="doctor photo" />
         <div>
           <h3>{{ doctor.name }}</h3>
           <p>{{ doctor.department }}</p>
+          <p>{{ doctor.outpatientType }}</p>
         </div>
       </div>
       <div class="appointment-options">
-      <!-- 显示医生的可预约时间 -->
-      <p>可预约时间：{{ doctor.VisitTime }}</p>
-      <!-- 预约按钮 -->
-      <button @click="bookAppointment(doctor)">
-        预约
-        <span v-if="doctor.remainingNumbers > 0">（剩余号数：{{ doctor.remainingNumbers}}）</span>
-      </button>
+        <p>可预约时间：{{ formatDateTime(doctor.visitTime) }}</p>
+        <!-- 显示剩余号数 -->
+        <p v-if="doctor.remainingNumbers > 0">剩余号数：{{ doctor.remainingNumbers }}</p>
+        <button @click="showAppointmentModal = true">预约</button>
+      </div>
     </div>
-      <div class="fee">挂号费 {{ doctor.cost }}元</div>
+    <div class="fee">挂号费 {{ doctor.cost }}元</div>
+  </div>
+
+  <!-- 模态窗口 -->
+  <div v-if="showAppointmentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showAppointmentModal = false">&times;</span>
+      <h2>预约医生：{{ doctor.name }}</h2>
+      <p>科室：{{ doctor.department }}</p>
+      <p>类型：{{ doctor.outpatientType }}</p>
+      <p>可预约时间：{{ formatDateTime(doctor.visitTime) }}</p>
+      <!-- 显示剩余号数 -->
+      <p v-if="doctor.remainingNumbers > 0">剩余号数：{{ doctor.remainingNumbers }}</p>
+      <!-- 显示挂号费 -->
+      <p>挂号费：{{ doctor.cost }}元</p>
+      <label for="patient">选择挂号人：</label>
+      <select id="patient" v-model="selectedPatient">
+        <option disabled value="">请选择</option>
+        <option v-for="patient in patients" :key="patient.id" :value="patient">{{ patient.name }}</option>
+      </select>
+      <!-- 支付按钮 -->
+      <button class="payment-button" @click="handlePayment">支付</button>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      doctor: {
-        type: Object,
-        required: true
+  </div>
+</template>
+
+<script>
+import doctorImage from '@/assets/doctor.png';
+
+export default {
+  props: {
+    doctor: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      doctorImage: doctorImage,
+      showAppointmentModal: false,
+      selectedPatient: '',
+      patients: [
+        { id: 1, name: '张三' },
+        { id: 2, name: '李四' },
+        { id: 3, name: '王五' }
+      ]
+    };
+  },
+  methods: {
+    bookAppointment(doctor) {
+      alert(`预约${doctor.name}在${doctor.VisitTime}`);
+    },
+    handlePayment() {
+      if (this.selectedPatient) {
+        alert(`您已选择挂号人：${this.selectedPatient.name}，即将进行支付。挂号费为：${this.doctor.cost}元。`);
+        // 在这里添加支付逻辑
+      } else {
+        alert('请选择挂号人。');
       }
     },
-    methods: {
-      bookAppointment() {
-        alert();
-        // 在这里添加预约逻辑
-      }
-    }
-  };
-  </script>
-  
-  <style scoped>
-  .doctor-info {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
+    formatDateTime(dateTimeString) {
+    const date = new Date(dateTimeString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  },
   }
-  
-  .doctor-profile {
-    display: flex;
-    align-items: center;
-  }
-  
-  .doctor-profile img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-right: 20px;
-  }
-  
-  .appointment-options {
-    margin-top: 20px;
-  }
-  
-  .fee {
-    margin-top: 20px;
-    font-weight: bold;
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+.doctor-box {
+  width: 30%;
+  min-width: 240px;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-profile {
+  display: flex;
+  align-items: center;
+}
+
+.doctor-profile img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.appointment-options {
+  margin-top: 20px;
+}
+
+.fee {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 支付按钮样式 */
+.payment-button {
+  background-color: #3161FF; /* 蓝色背景 */
+  color: #ffffff; /* 白色文字 */
+  padding: 10px 20px; /* 内边距 */
+  border: none; /* 无边框 */
+  border-radius: 5px; /* 圆角 */
+  cursor: pointer; /* 鼠标指针 */
+  font-size: 16px; /* 文字大小 */
+  margin-top: 10px; /* 外边距 */
+  float: right;
+}
+
+.payment-button:hover {
+  background-color: #2980b9; /* 鼠标悬停时的背景颜色 */
+}
+</style>

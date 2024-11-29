@@ -7,9 +7,10 @@ module.exports = defineConfig({
         target: 'http://10.3.112.10:8088',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '' // 正则表达式，意思是把请求路径中开头的 /api 部分去掉，这样就能和后端实际的路由路径对应上了
+          '^/api': '' 
         }
       }
     }
   }
 })
+

@@ -97,7 +97,7 @@ export default {
     handleQuery() {
       // 获取用户输入的科室信息，并进行编码处理，确保特殊字符能正确传递
       const encodedDepartment = encodeURIComponent(this.selectedDepartment);
-      axios.get(`http://10.3.112.10:8088/doctors/department/${encodedDepartment}`, {
+      axios.get(`/api/doctors/department/${encodedDepartment}`, {
         params: {
           type: this.selectedType,
           date: this.selectedDate
@@ -118,7 +118,7 @@ export default {
         return;
       }
       const encodedName = encodeURIComponent(name);
-      axios.get(`http://10.3.112.10:8088/doctors/${encodedName}`, {})
+      axios.get(`/api/doctors/${encodedName}`, {})
           .then(response => {
             this.doctors = response.data;
             this.showResults = true;
@@ -229,7 +229,9 @@ export default {
 .results {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  display: flex;
+  justify-content: flex-start; /* 水平排列，从左到右 */
+  gap: 20px;
 }
 
 .doctor-info {
