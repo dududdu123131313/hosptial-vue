@@ -4,14 +4,7 @@
   <div class="container">
     <h1 class="title">预约挂号</h1>
     
-    <div>
-       <!-- 医生姓名查询 -->
-       <div class="selection-row">
-        <span>医生姓名：</span>
-        <input type="text" v-model="searchDoctorName" class="selection-input" />
-        <button class="query-button" @click="searchDoctorByName">查询医生</button>
-      </div>
-    </div>
+
     <div class="selection-container">
       <!-- 选择科室 -->
       <div class="selection-row">
@@ -38,7 +31,7 @@
         <input type="text" v-model="selectedDate" class="selection-input" />
       </div>
     <!-- 查询按钮 -->
-    <button class="query-button" @click="handleQuery">查询</button>
+    <button class="query-button" @click="handleQuery" >查询</button>
     </div>
 
   
@@ -69,8 +62,8 @@ export default {
   },
   data() {
     return {
-      departments: ['康复科','普外科','中医科','眼科','口腔科','皮肤科','骨科','风湿免疫科','肿瘤科','心内科','传染科','妇产科','呼吸内科',
-      '儿科','血液科','泌尿外科','耳鼻喉科','神经内科','急诊科','内分泌科'],
+      departments: ['康复科', '普外科', '中医科', '眼科', '口腔科', '皮肤科', '骨科', '风湿免疫科', '肿瘤科', '心内科', '传染科', '妇产科', '呼吸内科',
+        '儿科', '血液科', '泌尿外科', '耳鼻喉科', '神经内科', '急诊科', '内分泌科'],
       types: ['专家门诊', '普通门诊'],
       selectedDepartment: '',
       selectedType: '',
@@ -78,7 +71,7 @@ export default {
       dates: [],
       doctors: [],
       showResults: false,
-      searchDoctorName: '' 
+
     };
   },
   created() {
@@ -95,38 +88,34 @@ export default {
       this.selectedDate = date;
     },
     handleQuery() {
-      // 获取用户输入的科室信息，并进行编码处理，确保特殊字符能正确传递
       const encodedDepartment = encodeURIComponent(this.selectedDepartment);
-      axios.get(`/api/doctors/department/${encodedDepartment}`, {
-        params: {
-          type: this.selectedType,
-          date: this.selectedDate
-        }
-      })
+      const encodedType = encodeURIComponent(this.selectedType);
+      const encodedDate = encodeURIComponent(this.selectedDate);
+
+      // 验证日期格式是否正确
+      if (this.selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(this.selectedDate)) {
+        alert('请输入正确的日期格式（例如：YYYY-MM-DD）');
+        return;
+      }
+
+
+      const queryUrl = `/api/doctors/query?department=${encodedDepartment}&outpatientType=${encodedType}&visitTime=${encodedDate}`;
+      axios.get(queryUrl)
           .then(response => {
             this.doctors = response.data;
             this.showResults = true;
           })
           .catch(error => {
             console.error('Error fetching doctor info:', error);
+            if (error.response) {
+              alert('查询失败，请稍后重试。错误信息：' + error.response.data);
+            } else {
+              alert('网络连接异常，请检查网络后重试。');
+            }
           });
     },
-    searchDoctorByName() {
-      const name = this.searchDoctorName.trim();
-      if (!name) {
-        alert('请输入医生姓名后再进行搜索！');
-        return;
-      }
-      const encodedName = encodeURIComponent(name);
-      axios.get(`/api/doctors/${encodedName}`, {})
-          .then(response => {
-            this.doctors = response.data;
-            this.showResults = true;
-          })
-          .catch(error => {
-            console.error('Error searching doctor by name:', error);
-          });
-    },
+
+
     generateDates(days) {
       const dates = [];
       const today = new Date();
@@ -141,6 +130,7 @@ export default {
       return dates;
     }
   }
+
 };
 </script>
 
@@ -201,7 +191,7 @@ export default {
   padding: 10px 20px;
   border: none;
   background-color: #3161FF;
-  color: #007bff;
+  color: #ffffff;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 20px; /* 添加上边距 */
