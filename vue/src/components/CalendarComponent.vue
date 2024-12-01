@@ -132,13 +132,13 @@ export default {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between; /* 修改此处，让子元素均匀分布，避免最后一行元素宽度异常 */
+  justify-content: flex-start; /* 修改此处，让子元素均匀分布，避免最后一行元素宽度异常 */
 }
 
 .days div {
-  width: calc(100% / 7);
+  width: 42.857px;
   height: auto;
-  flex: 0 0 calc(100% / 7);
+  flex: 0 0 42.857px;
   text-align: center;
   border: 1px solid #eee;
   border-radius: 50%;
