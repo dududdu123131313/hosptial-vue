@@ -3,11 +3,15 @@
   <div class="my-registrations-container">
     <h1 class="title">我的挂号</h1>
     <div class="registration-info-container">
-      <registration-info :registration="registrationInfo"></registration-info>
+      <!-- 使用v - for遍历筛选后的挂号信息 -->
+      <registration-info
+                    v-for="reg in filteredRegistrationInfo"
+                    :key="reg.medicalNumber"
+                    :registration="reg"
+      ></registration-info>
     </div>
   </div>
 </template>
-
 <script>
 import RegistrationInfo from './RegistrationInfo.vue';
 import axios from 'axios';
@@ -18,7 +22,8 @@ export default {
   },
   data() {
     return {
-      registrationInfo: {}
+      registrationInfo: [],
+      filteredRegistrationInfo: []
     };
   },
   created() {
@@ -27,11 +32,16 @@ export default {
   methods: {
     async fetchRegistrationInfo() {
       try {
-        const response = await axios.get('/api/registrations');
+        const response = await axios.get(`/api/registrationLists/account/user123`);
         this.registrationInfo = response.data;
+        console.log(response.data);
+        this.filterRegistrationInfo();
       } catch (error) {
         console.error('Error fetching registration info:', error);
       }
+    },
+    filterRegistrationInfo() {
+      this.filteredRegistrationInfo = this.registrationInfo.filter(item => item.accountName === 'user123');
     }
   }
 };

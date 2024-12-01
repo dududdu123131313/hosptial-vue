@@ -1,15 +1,12 @@
 <!-- RegistrationInfo.vue -->
 <template>
-  <div class="registration-info">
+  <div class="registration-info" :class="{ 'disabled-appointment':!canCancel }">
     <p>就诊科室: {{ registration.department }}</p>
-    <p>科室地址: {{ registration.address }}</p>
-    <p>看诊医生: {{ registration.doctor }}</p>
-    <p>就诊时间: {{ registration.appointmentTime }}</p>
-    <p>挂号时间: {{ registration.registrationTime }}</p>
-    <p>状态: {{ registration.status }}</p>
-    <p>就诊人: {{ registration.registrant }}</p>
-    <p>挂号费用: ¥{{ registration.cost }}</p>
-    <p>排队号: {{ registration.queueNumber }}</p>
+    <p>门诊类型: {{ registration.outpatientType }}</p>
+    <p>看诊医生: {{ registration.doctor_Name }}</p>
+    <p>就诊时间: {{ formatTime(registration.visitTime) }}</p>
+    <p>挂号时间: {{ formatTime(registration.registrationTime) }}</p>
+    <p>就诊人: {{ registration.name }}</p>
     <button v-if="canCancel" class="cancel-button" @click="cancelAppointment">取消预约</button>
   </div>
 </template>
@@ -25,17 +22,23 @@ export default {
   computed: {
     canCancel() {
       const now = new Date();
-      const appointmentTime = new Date(this.registration.appointmentTime);
+      const visitTime = new Date(this.registration.visitTime);
       const registrationTime = new Date(this.registration.registrationTime);
-      return !(now.getDate() === appointmentTime.getDate() || now.getDate() === registrationTime.getDate());
+      return now.getTime() < visitTime.getTime() && now.getTime() < registrationTime.getTime();
     }
   },
   methods: {
+    formatTime(time) {
+      if (time) {
+        return new Date(time).toLocaleString();
+      }
+      return '';
+    },
     cancelAppointment() {
       // 在这里添加取消预约的逻辑
       alert('预约已取消');
       // 发出请求到后端API来取消预约
-   }
+    }
   }
 };
 </script>
@@ -56,7 +59,17 @@ export default {
   cursor: pointer;
  
 }
-
+.registration-info {
+                  padding: 20px;
+                  margin-bottom: 20px;
+                  border-bottom: 1px solid #ddd;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  background-color: #fff;
+                  border-radius: 8px;
+                }
+.disabled-appointment {
+              opacity: 0.5;
+            }
 .cancel-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
