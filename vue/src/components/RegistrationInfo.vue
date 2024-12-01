@@ -7,7 +7,7 @@
     <p>就诊时间: {{ formatTime(registration.visitTime) }}</p>
     <p>挂号时间: {{ formatTime(registration.registrationTime) }}</p>
     <p>就诊人: {{ registration.name }}</p>
-    <button v-if="canCancel" class="cancel-button" @click="cancelAppointment">取消预约</button>
+    <button class="cancel - button" @click="cancelAppointment">取消预约</button>
   </div>
 </template>
 
