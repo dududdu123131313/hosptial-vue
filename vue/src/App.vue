@@ -1,93 +1,383 @@
-<!-- App.vue -->
 <template>
-  <div id="app">
-    <div class="nav-bar">
-      <h1 class="nav-title">南京市浦口人民医院</h1>
-      <!-- 导航链接，使用router-link -->
-      <router-link to="/" class="nav-item">主页</router-link>
-      <router-link to="/registration" class="nav-item">预约挂号</router-link>
-      <router-link to="/my-registrations" class="nav-item">我的挂号</router-link>
-      <router-link to="/my-bills" class="nav-item">我的账单</router-link>
-      <router-link to="/messages" class="nav-item">消息中心</router-link>
-      <router-link to="/profile" class="nav-item">个人中心</router-link>
+  <div class="container right-panel-active" id="app">
+    <!-- 注册 -->
+    <div class="container__form container--signup">
+      <form @submit.prevent="handleSignUp" class="form" id="form1">
+        <h2 class="form__title">注册账号</h2>
+        <input v-model="signup.phone" type="text" placeholder="手机号" class="input" />
+        <input v-model="signup.password" type="password" placeholder="设置密码" class="input" />
+        <input v-model="signup.verificationCode" type="text" placeholder="验证码" class="input" />
+        <span class="get-verification-code" @click="requestVerificationCode">获取验证码</span>
+        <button @click="togglePanel('register')" class="btn" id="register">注 册</button>
+      </form>
     </div>
-    <div class="main-content">
-      <!-- 路由视图 -->
-      <router-view></router-view>
+
+    <!-- 登录 -->
+    <div class="container__form container--signin">
+      <form @submit.prevent="handleLogin" class="form" id="form2">
+        <h2 class="form__title">登录账号</h2>
+        <input v-model="login.account" type="text" placeholder="用户名/手机号" class="input" />
+        <input v-model="login.password" type="password" placeholder="密码" class="input" />
+        <a href="#" class="link" id="forgetPassword">忘记密码?</a>
+        <button @click="togglePanel('login')" class="btn" id="login">登 录</button>
+      </form>
     </div>
+
+    <!-- 覆盖层 -->
+    <div class="container__overlay">
+      <div class="overlay">
+        <div class="overlay__panel overlay--left">
+          <button  class="btn" id="signIn">登录账号</button>
+        </div>
+        <div class="overlay__panel overlay--right">
+          <button  class="btn" id="signUp">注册账号</button>
+        </div>
+      </div>
+    </div>  
   </div>
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
-
 export default {
-  setup() {
-    const router = useRouter();
-
-    function navigate(event) {
-      event.preventDefault();
-      const path = event.target.getAttribute('to');
-      router.push(path);
-    }
-
+  name: 'App',
+  data() {
     return {
-      navigate
+      //isSignUpActive: false,
+      signup: {
+        phone: '',
+        password: '',
+        verificationCode: ''
+      },
+      login: {
+        account: '',
+        password: ''
+      }
     };
+  },
+  methods: {
+    togglePanel(panel) {
+      this.isSignUpActive = panel === 'register';
+    },
+ 
+    handleSignUp() {
+      const { phone, password, verificationCode } = this.signup;
+      if (phone && password && verificationCode) {
+        fetch('/api/sign', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: phone,
+            password,
+            verificationCode
+          })
+        })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert('注册成功！');
+                // 可以重定向到登录页面或其他页面
+                window.location.href = '/login';
+              } else {
+                alert('注册失败，请检查您的信息。');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('网络错误，请检查您的连接。');
+            });
+      } else {
+        alert('请填写所有必填项！');
+      }
+    },
+    handleLogin() {
+      const { account, password } = this.login;
+      if (account && password) {
+        fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            accountName: account,
+            password,
+          })
+        })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert('登录成功！');
+                // 可以重定向到主页或其他页面
+                window.location.href = '/home.vue';
+              } else {
+                alert('登录失败，请检查您的信息。');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('网络错误，请检查您的连接。');
+            });
+      } else {
+        alert('请填写所有必填项！');
+      }
+    },
+    requestVerificationCode() {
+      const { phone } = this.signup;
+      if (phone) {
+        fetch('https://your-backend-api-url/send-verification-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ phoneNumber: phone })
+        })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                alert('验证码已发送，请查收！');
+              } else {
+                alert('发送验证码失败，请稍后再试。');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('网络错误，请检查您的连接。');
+            });
+      } else {
+        alert('请输入手机号码！');
+      }
+    },
+/*    goToResetPassword() {
+      window.location.href = "/resetPassWord"; // 跳转到重置密码页面
+    }*/
   }
 };
 </script>
 
 <style>
-body, html {
+/* 保持原有的样式不变 */
+:root {
+  /* COLORS */
+  --white: #F5F7FF;
+  --gray: #333;
+  --blue: #3161FF;
+  --lightblue: #3161F2;
+
+  /* RADII */
+  --button-radius: 0.7rem;
+
+  /* SIZES */
+  --max-width: 700px;
+  --max-height: 373px;
+
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+  Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+template {
+  align-items: center;
+  background-color: var(--white);
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: grid;
+  height: 100vh;
+  place-items: center;
+}
+
+.form__title {
+  font-weight: 300;
   margin: 0;
-  padding: 0;
-  height: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.link {
+  color: var(--blue);
+  font-size: 0.9rem;
+  margin: 1.5rem 0;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline; /* 鼠标悬停时添加下划线 */
+}
+
+.container {
+  background-color: var(--white);
+  border-radius: var(--button-radius);
+  box-shadow: 0 0.9rem 1.7rem rgba(0, 0, 0, 0.25),
+  0 0.7rem 0.7rem rgba(0, 0, 0, 0.22);
+  height: var(--max-height);
+  max-width: var(--max-width);
+  overflow: hidden;
+  position: relative;
   width: 100%;
 }
 
-#app {
-  display: flex;
+.container__form {
   height: 100%;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  transition: all 0.6s ease-in-out;
 }
 
-.nav-bar {
-  width: 200px;
+.container--signin {
+  left: 0;
+  width: 50%;
+  z-index: 2;
+}
+
+.container.right-panel-active .container--signin {
+  transform: translateX(100%);
+}
+
+.container--signup {
+  left: 0;
+  opacity: 0;
+  width: 50%;
+  z-index: 1;
+}
+
+.container.right-panel-active .container--signup {
+  animation: show 0.6s;
+  opacity: 1;
+  transform: translateX(100%);
+  z-index: 5;
+}
+
+.container__overlay {
   height: 100%;
-  position: fixed;
-  background-color:#3131FF ;
-  color: white;
-  padding: 20px;
+  left: 50%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  transition: transform 0.6s ease-in-out;
+  width: 50%;
+  z-index: 100;
+}
+
+.container.right-panel-active .container__overlay {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background-color: var(--lightblue);
+  background: url("http://localhost:63342/hosptial-vue/vue/public/images/background1.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  left: -100%;
+  position: relative;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+  width: 200%;
+} 
+
+.container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+.overlay__panel {
+  align-items: center;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+  width: 50%;
 }
 
-.nav-title {
-  font-size: 34px; 
-  font-weight: bold; /* 加粗 */
-  margin-bottom: 20px; /* 与导航项之间的间隔 */
+.overlay--left {
+  transform: translateX(-20%);
 }
 
-.nav-item {
-  color: white;
-  display: block;
-  margin-bottom: 10px;
-  text-decoration: none;
-  padding: 10px;
-  border-bottom: 1px solid #ffffff;
+.container.right-panel-active .overlay--left {
+  transform: translateX(0);
 }
 
-.nav-item:hover, .nav-item.active {
-  background-color: #a5a5a5;
+.overlay--right {
+  right: 0;
+  transform: translateX(0);
 }
 
-.main-content {
-  margin-left: 220px; /* Adjust the margin to account for the width of the nav-bar plus padding */
-  padding: 20px;
-  width: 100%; /* Ensure the main content takes up the remaining space */
-  
-  background: 100;
-  
+.container.right-panel-active .overlay--right {
+  transform: translateX(20%);
 }
+
+.btn {
+  background-color: var(--blue);
+  background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%);
+  border-radius: 20px;
+  border: 1px solid var(--blue);
+  color: var(--white);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 0.1rem;
+  padding: 0.9rem 4rem;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in;
+}
+
+.form>.btn {
+  margin-top: 1.5rem;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.form {
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 3rem;
+  height: 100%;
+  text-align: center;
+}
+
+.input {
+  background-color: #fff;
+  border: none;
+  padding: 0.9rem 0.9rem;
+  margin: 0.5rem 0;
+  width: 100%;
+  border-radius: var(--button-radius);
+}
+.get-verification-code {
+  color: var(--blue); /* 蓝色文字 */
+  cursor: pointer; /* 鼠标指针变为手型 */
+  margin-left: 0.5rem; /* 左边距 */
+}
+.get-verification-code:hover {
+  text-decoration: underline; /* 鼠标悬停时添加下划线 */
+}
+
+@keyframes show {
+
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
 </style>

@@ -101,17 +101,17 @@ export default {
 
         // 使用 axios 发送 POST 请求到后端
         axios.post('/api/registrationLists/addRegistration', RegistrationList)
-            .then(response => {
-              // 请求成功，处理响应
-              console.log('Appointment successful:', response.data);
-              alert('预约成功！');
-              this.showAppointmentModal = false; // 关闭模态框
-            })
-            .catch(error => {
-              // 请求失败，处理错误
-              console.error('Appointment failed:', error.response || error.message);
-              alert('预约失败，请重试。');
-            });
+          .then(response => {
+            // 请求成功，处理响应
+            console.log('Appointment successful:', response.data);
+            alert('预约成功！');
+            this.showAppointmentModal = false; // 关闭模态框
+          })
+          .catch(error => {
+            // 请求失败，处理错误
+            console.error('Appointment failed:', error.response || error.message);
+            alert('预约失败，请重试。');
+          });
       } else {
         alert('请选择挂号人。');
       }
