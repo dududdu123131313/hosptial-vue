@@ -1,13 +1,19 @@
 <!-- MyRegistrationsComponent.vue -->
 <template>
-  <div class="my-registrations-container">
+  <div class="my - registrations - container">
     <h1 class="title">我的挂号</h1>
-    <div class="registration-info-container">
-      <registration-info :registration="registrationInfo"></registration-info>
+    <!-- 添加输入框和查询按钮 -->
+    <input type="text" v-model="searchAccountName" placeholder="输入账户名查询" />
+    <button @click="fetchRegistrationInfoByAccountName">查询</button>
+    <div class="registration - info - container">
+      <registration-info
+                    v-for="reg in filteredRegistrationInfo"
+                    :key="reg.medicalNumber"
+                    :registration="reg"
+      ></registration-info>
     </div>
   </div>
 </template>
-
 <script>
 import RegistrationInfo from './RegistrationInfo.vue';
 import axios from 'axios';
@@ -18,20 +24,23 @@ export default {
   },
   data() {
     return {
-      registrationInfo: {}
+      registrationInfo: [],
+      filteredRegistrationInfo: [],
+      searchAccountName: ""
     };
   },
-  created() {
-    this.fetchRegistrationInfo();
-  },
   methods: {
-    async fetchRegistrationInfo() {
+    async fetchRegistrationInfoByAccountName() {
       try {
-        const response = await axios.get('/api/registrations');
+        const response = await axios.get(`/api/registrationLists/account/${this.searchAccountName}`);
         this.registrationInfo = response.data;
+        this.filterRegistrationInfo();
       } catch (error) {
-        console.error('Error fetching registration info:', error);
+        console.error('Error fetching registration info by account name:', error);
       }
+    },
+    filterRegistrationInfo() {
+      this.filteredRegistrationInfo = this.registrationInfo.filter(item => item.accountName === this.searchAccountName);
     }
   }
 };

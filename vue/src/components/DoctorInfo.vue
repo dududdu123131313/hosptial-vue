@@ -44,6 +44,7 @@
 
 <script>
 import doctorImage from '@/assets/doctor.png';
+import axios from 'axios';
 
 export default {
   props: {
@@ -64,14 +65,53 @@ export default {
       ]
     };
   },
+  computed: {
+    // 从个人中心获取用户名、姓名和电话
+    currentUser() {
+      // 假设这些信息存储在另一个组件或者 Vuex store 中
+      // 这里只是一个示例，你需要根据实际情况调整
+      return {
+        username: this.$root.username, // 从根组件获取用户名
+        name: this.$root.name, // 从根组件获取姓名
+        phone: this.$root.phone, // 从根组件获取电话
+      };
+    }
+  },
+
   methods: {
     bookAppointment(doctor) {
       alert(`预约${doctor.name}在${doctor.VisitTime}`);
     },
     handlePayment() {
       if (this.selectedPatient) {
-        alert(`您已选择挂号人：${this.selectedPatient.name}，即将进行支付。挂号费为：${this.doctor.cost}元。`);
-        // 在这里添加支付逻辑
+        const registrationTime = new Date();
+        registrationTime.setHours(registrationTime.getHours() + 8);
+        // 构建要发送到后端的数据对象
+        const RegistrationList = {
+          name:  this.selectedPatient.name ,
+          age: '18', // 假设年龄信息需要从其他地方获取
+          phoneNumber: '13363618523', // 假设电话号码信息需要从其他地方获取
+          department: this.doctor.department,
+          visitTime: this.doctor.visitTime,
+          registrationTime:  registrationTime.toISOString(),
+          doctor_Name: this.doctor.name,
+          outpatientType: this.doctor.outpatientType,
+          accountName: 'user123', // 假设你有一个方法来获取当前登录用户的用户名
+        };
+
+        // 使用 axios 发送 POST 请求到后端
+        axios.post('/api/registrationLists/addRegistration', RegistrationList)
+          .then(response => {
+            // 请求成功，处理响应
+            console.log('Appointment successful:', response.data);
+            alert('预约成功！');
+            this.showAppointmentModal = false; // 关闭模态框
+          })
+          .catch(error => {
+            // 请求失败，处理错误
+            console.error('Appointment failed:', error.response || error.message);
+            alert('预约失败，请重试。');
+          });
       } else {
         alert('请选择挂号人。');
       }
