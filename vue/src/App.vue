@@ -58,6 +58,7 @@ export default {
     togglePanel(panel) {
       this.isSignUpActive = panel === 'register';
     },
+ 
     handleSignUp() {
       const { phone, password, verificationCode } = this.signup;
       if (phone && password && verificationCode) {
@@ -100,7 +101,7 @@ export default {
           },
           body: JSON.stringify({
             accountName: account,
-            password
+            password,
           })
         })
             .then(response => response.json())
@@ -108,7 +109,7 @@ export default {
               if (data.success) {
                 alert('登录成功！');
                 // 可以重定向到主页或其他页面
-                window.location.href = '/dashboard';
+                window.location.href = '/home.vue';
               } else {
                 alert('登录失败，请检查您的信息。');
               }
@@ -377,18 +378,6 @@ template {
     opacity: 1;
     z-index: 5;
   }
-}
-/* 您原有的样式 */
-.slide-enter-active, .slide-leave-active, .overlay-slide-enter-active, .overlay-slide-leave-active {
-  transition: all 0.6s ease-in-out;
-}
-
-.slide-enter, .overlay-slide-leave-to /* .overlay-slide-leave-active in <2.1.8 */ {
-  transform: translateX(100%);
-}
-
-.overlay-slide-enter, .slide-leave-to /* .slide-leave-active in <2.1.8 */ {
-  transform: translateX(-100%);
 }
 
 </style>
