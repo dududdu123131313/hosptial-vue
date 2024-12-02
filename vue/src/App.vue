@@ -12,32 +12,22 @@
       </form>
     </div>
 
-    <!-- 登录 -->
-    <div class="container__form container--signin">
-      <form @submit.prevent="handleLogin" class="form" id="form2">
-        <h2 class="form__title">登录账号</h2>
-        <input v-model="login.account" type="text" placeholder="用户名/手机号" class="input" />
-        <input v-model="login.password" type="password" placeholder="密码" class="input" />
-        <a href="#" class="link" id="forgetPassword">忘记密码?</a>
-        <button @click="togglePanel('login')" class="btn" id="login">登 录</button>
-      </form>
-    </div>
-
     <!-- 覆盖层 -->
     <div class="container__overlay">
       <div class="overlay">
         <div class="overlay__panel overlay--left">
-          <button  class="btn" id="signIn">登录账号</button>
+          <button  class="btn" id="signIn"  @click="goToLogin">登录账号</button>
         </div>
         <div class="overlay__panel overlay--right">
           <button  class="btn" id="signUp">注册账号</button>
         </div>
       </div>
-    </div>  
+    </div>
   </div>
 </template>
 
 <script>
+
 export default {
   name: 'App',
   data() {
@@ -58,7 +48,7 @@ export default {
     togglePanel(panel) {
       this.isSignUpActive = panel === 'register';
     },
- 
+
     handleSignUp() {
       const { phone, password, verificationCode } = this.signup;
       if (phone && password && verificationCode) {
@@ -73,50 +63,17 @@ export default {
             verificationCode
           })
         })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
+            .then(response => {
+              if (response.status === 201) {
                 alert('注册成功！');
-                // 可以重定向到登录页面或其他页面
                 window.location.href = '/login';
               } else {
-                alert('注册失败，请检查您的信息。');
+                throw new Error('服务器返回错误状态码');
               }
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('网络错误，请检查您的连接。');
-            });
-      } else {
-        alert('请填写所有必填项！');
-      }
-    },
-    handleLogin() {
-      const { account, password } = this.login;
-      if (account && password) {
-        fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            accountName: account,
-            password,
-          })
-        })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                alert('登录成功！');
-                // 可以重定向到主页或其他页面
-                window.location.href = '/home.vue';
-              } else {
-                alert('登录失败，请检查您的信息。');
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('网络错误，请检查您的连接。');
+              alert('注册失败，请检查您的信息或网络连接。');
             });
       } else {
         alert('请填写所有必填项！');
@@ -148,9 +105,12 @@ export default {
         alert('请输入手机号码！');
       }
     },
-/*    goToResetPassword() {
+    goToResetPassword() {
       window.location.href = "/resetPassWord"; // 跳转到重置密码页面
-    }*/
+    },
+    goToLogin() {
+      this.$router.push('/login');
+    }
   }
 };
 </script>
@@ -185,6 +145,7 @@ template {
   display: grid;
   height: 100vh;
   place-items: center;
+  justify-content: center;
 }
 
 .form__title {
@@ -273,7 +234,7 @@ template {
   transform: translateX(0);
   transition: transform 0.6s ease-in-out;
   width: 200%;
-} 
+}
 
 .container.right-panel-active .overlay {
   transform: translateX(50%);
