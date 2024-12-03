@@ -4,10 +4,8 @@
     <div class="container__form container--signup">
       <form @submit.prevent="handleSignUp" class="form" id="form1">
         <h2 class="form__title">注册账号</h2>
-        <input v-model="signup.phone" type="text" placeholder="手机号" class="input" />
-        <input v-model="signup.password" type="password" placeholder="设置密码" class="input" />
-        <input v-model="signup.verificationCode" type="text" placeholder="验证码" class="input" />
-        <span class="get-verification-code" @click="requestVerificationCode">获取验证码</span>
+        <input v-model="signup.phoneNumber" type="text" placeholder="手机号" class="input" />
+        <input v-model="signup.passWord" type="password" placeholder="设置密码" class="input" />
         <button @click="togglePanel('register')" class="btn" id="register">注 册</button>
       </form>
     </div>
@@ -28,7 +26,9 @@
 </template>
 
 <script>
-import {useRouter} from "vue-router";
+import axios from 'axios';
+import { useRouter } from "vue-router";
+
 export default {
   name: 'registerComponent',
   setup() {
@@ -48,13 +48,12 @@ export default {
     return {
       isSignUpActive: false,
       signup: {
-        phone: '',
-        password: '',
-        verificationCode: ''
+        phoneNumber: '',
+        passWord: '',
       },
       login: {
-        account: '',
-        password: ''
+        accountName: '',
+        passWord: ''
       }
     };
   },
@@ -63,24 +62,23 @@ export default {
       this.isSignUpActive = panel === 'register';
     },
 
+    // 处理注册逻辑，使用axios发送POST请求
     handleSignUp() {
-      const { phone, password, verificationCode } = this.signup;
-      if (phone && password && verificationCode) {
-        fetch('/api/sign', {
-          method: 'POST',
+      const { phoneNumber, passWord } = this.signup;
+      const phoneNumberRegex = /^\d{11}$/;
+      if (phoneNumber && passWord && phoneNumberRegex) {
+        axios.post('http://10.3.112.10:8088/users', {
+          phoneNumber: phoneNumber,
+          passWord: passWord,
+        }, {
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            phoneNumber: phone,
-            password,
-            verificationCode
-          })
+          }
         })
             .then(response => {
               if (response.status === 201) {
                 alert('注册成功！');
-                window.location.href = '/login';
+                window.location.href = '/';
               } else {
                 throw new Error('服务器返回错误状态码');
               }
@@ -93,19 +91,20 @@ export default {
         alert('请填写所有必填项！');
       }
     },
+
+    // 请求验证码逻辑，使用axios发送POST请求
     requestVerificationCode() {
-      const { phone } = this.signup;
-      if (phone) {
-        fetch('https://your-backend-api-url/send-verification-code', {
-          method: 'POST',
+      const { phoneNumber } = this.signup;
+      if (phoneNumber) {
+        axios.post('https://your-backend-api-url/send-verification-code', {
+          phoneNumber: phoneNumber
+        }, {
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ phoneNumber: phone })
+          }
         })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
+            .then(response => {
+              if (response.data.success) {
                 alert('验证码已发送，请查收！');
               } else {
                 alert('发送验证码失败，请稍后再试。');
@@ -119,9 +118,11 @@ export default {
         alert('请输入手机号码！');
       }
     },
+
     goToResetPassword() {
       window.location.href = "/resetPassWord"; // 跳转到重置密码页面
     },
+
     goToLogin() {
       this.$router.push('/');
     }

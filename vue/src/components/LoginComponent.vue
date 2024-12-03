@@ -5,8 +5,8 @@
     <div class="container__form container--signin">
       <form @submit.prevent="handleLogin" class="form" id="form2">
         <h2 class="form__title">登录账号</h2>
-        <input v-model="login.account" type="text" placeholder="用户名/手机号" class="input" />
-        <input v-model="login.password" type="password" placeholder="密码" class="input" />
+        <input v-model="login.accountName" type="text" placeholder="用户名/手机号" class="input" />
+        <input v-model="login.passWord" type="password" placeholder="密码" class="input" />
         <a class="link" id="forgetPassword" @click="goToResetPassword">忘记密码?</a>
         <button @click="togglePanel('login')" class="btn" id="login">登 录</button>
       </form>
@@ -24,7 +24,9 @@
 </template>
 
 <script>
-import { useRouter }  from 'vue-router';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+
 export default {
   name: 'loginComponent',
   setup() {
@@ -44,13 +46,13 @@ export default {
     return {
       isSignUpActive: false,
       signup: {
-        phone: '',
-        password: '',
+        phoneNumber: '',
+        passWord: '',
         verificationCode: ''
       },
       login: {
-        account: '',
-        password: ''
+        accountName: '',
+        passWord: ''
       }
     };
   },
@@ -58,32 +60,27 @@ export default {
     togglePanel(panel) {
       this.isSignUpActive = panel === 'register';
     },
+
+    // 处理登录逻辑，使用axios发送POST请求
     handleLogin() {
-      const { phone, password } = this.login;
-      window.location.href = '/home';// 注意这里假设您的登录表单使用的是 phone 字段
-      if (phone && password) {
-        fetch('/api/login', {
-          method: 'POST',
+      const { accountName, passWord } = this.login;
+      if (accountName && passWord) {
+        // 判断输入的是否为手机号格式，这里简单以是否纯数字且长度合适来判断，实际可能需更严谨验证
+        const isPhoneNumber = /^\d{11}$/.test(accountName);
+        let loginUrl = isPhoneNumber? 'http://10.3.112.10:8088/users/login/phone' : 'http://10.3.112.10:8088/users/login/account';
+        const loginData = isPhoneNumber? { phoneNumber: accountName, passWord: passWord } : { accountName: accountName, passWord: passWord };
+        axios.post(loginUrl, loginData, {
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            phoneNumber: phone,
-            password,
-          })
+          }
         })
             .then(response => {
-              if (response.ok) { // 响应状态码为2xx表示成功
-                // 如果不需要使用返回的数据，可以省略解析步骤
-                // 或者解析后不使用 data
-                return response.json(); // 解析返回的用户对象
+              if (response.status >= 200 && response.status < 300) {
+                alert('登录成功！');
+                window.location.href = '/home';
               } else {
                 throw new Error('登录失败');
               }
-            })
-            .then(() => { // 这里可以不使用 data
-              alert('登录成功！');
-              window.location.href = '/home.vue';
             })
             .catch(error => {
               console.error('Error:', error);
@@ -93,19 +90,19 @@ export default {
         alert('请填写所有必填项！');
       }
     },
+
     requestVerificationCode() {
-      const { phone } = this.signup;
-      if (phone) {
-        fetch('https://your-backend-api-url/send-verification-code', {
-          method: 'POST',
+      const { phoneNumber } = this.signup;
+      if (phoneNumber) {
+        axios.post('https://your-backend-api-url/send-verification-code', {
+          phoneNumber: phoneNumber
+        }, {
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ phoneNumber: phone })
+          }
         })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
+            .then(response => {
+              if (response.data.success) {
                 alert('验证码已发送，请查收！');
               } else {
                 alert('发送验证码失败，请稍后再试。');
@@ -119,9 +116,11 @@ export default {
         alert('请输入手机号码！');
       }
     },
+
     goToResetPassword() {
-      window.location.href = "/resetPassWord"; // 跳转到重置密码页面
+      window.location.href = "/resetPassWord";
     },
+
     goToRegister() {
       this.$router.push('/register');
     }
