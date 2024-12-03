@@ -8,10 +8,11 @@ const MyRegistrationsComponent = () => import('../components/MyRegistrationsComp
 const MyBillsComponent = () => import('../components/MyBillsComponent.vue');
 const MessagesComponent = () => import('../components/MessagesComponent.vue');
 const ProfileComponent = () => import('../components/ProfileComponent.vue');
-
+const LoginComponent =()=> import('../components/LoginComponent.vue');
+const RegisterComponent = () => import('../components/RegisterComponent.vue');
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: HomeComponent
   },
@@ -31,7 +32,7 @@ const routes = [
     component: MyBillsComponent
   },
   {
-    path: '/messages',
+    path: '/my-messages',
     name: 'messages',
     component: MessagesComponent
   },
@@ -39,7 +40,18 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: ProfileComponent
-  }
+  },
+  {
+    path: '/',
+    name: 'login',
+    component: LoginComponent,
+  },
+    {
+    path: '/register',
+    name:'register',
+    component: RegisterComponent,
+      }
+
 ];
 
 const router = createRouter({
