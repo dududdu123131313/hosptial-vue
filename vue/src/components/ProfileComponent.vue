@@ -1,4 +1,15 @@
 <template>
+
+  <div class="nav-bar">
+    <h1 class="nav-title">南京市浦口人民医院</h1>
+    <!-- 导航链接，使用router-link -->
+    <router-link to="/home" class="nav-item">主页</router-link>
+    <router-link to="/registration" class="nav-item">预约挂号</router-link>
+    <router-link to="/my-registrations" class="nav-item">我的挂号</router-link>
+    <router-link to="/my-bills" class="nav-item">我的账单</router-link>
+    <router-link to="/my-messages" class="nav-item">消息中心</router-link>
+    <router-link to="/profile" class="nav-item">个人中心</router-link>
+  </div>
   <div class="profile-container">
     <h1 class="title">个人中心</h1>
     <div class="section-box account-info">
@@ -243,5 +254,19 @@ input {
   display: inline-block;
   border: 1px solid #ccc;
   box-sizing: border-box;
+}
+.nav-bar {
+  width: 200px;
+  height: 100%;
+  position: fixed;
+  background-color:#3131FF ;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.profile-container {
+  margin-left: 250px;
+
 }
 </style>

@@ -1,32 +1,36 @@
 <template>
-  <div class="container left-panel-active" id="loginComponent">
-    <!-- 登录 -->
-
-    <div class="container__form container--signin">
-      <form @submit.prevent="handleLogin" class="form" id="form2">
-        <h2 class="form__title">登录账号</h2>
-        <input v-model="login.account" type="text" placeholder="用户名/手机号" class="input" />
-        <input v-model="login.password" type="password" placeholder="密码" class="input" />
-        <a class="link" id="forgetPassword" @click="goToResetPassword">忘记密码?</a>
-        <button @click="togglePanel('login')" class="btn" id="login">登 录</button>
+  <div class="container right-panel-active" id="registerComponent">
+    <!-- 注册 -->
+    <div class="container__form container--signup">
+      <form @submit.prevent="handleSignUp" class="form" id="form1">
+        <h2 class="form__title">注册账号</h2>
+        <input v-model="signup.phone" type="text" placeholder="手机号" class="input" />
+        <input v-model="signup.password" type="password" placeholder="设置密码" class="input" />
+        <input v-model="signup.verificationCode" type="text" placeholder="验证码" class="input" />
+        <span class="get-verification-code" @click="requestVerificationCode">获取验证码</span>
+        <button @click="togglePanel('register')" class="btn" id="register">注 册</button>
       </form>
     </div>
 
     <!-- 覆盖层 -->
     <div class="container__overlay">
       <div class="overlay">
-        <div class="overlay__panel overlay--right">
-          <button  class="btn" id="signIn" @click="goToRegister">注册账号</button>
+        <div class="overlay__panel overlay--left">
+          <button  class="btn" id="signIn"  @click="goToLogin">登录账号</button>
         </div>
       </div>
+
     </div>
   </div>
+  <keep-alive>
+    <router-view :key="$route.fullPath"></router-view>
+  </keep-alive>
 </template>
 
 <script>
-import { useRouter }  from 'vue-router';
+import {useRouter} from "vue-router";
 export default {
-  name: 'loginComponent',
+  name: 'registerComponent',
   setup() {
     const router = useRouter();
 
@@ -58,11 +62,11 @@ export default {
     togglePanel(panel) {
       this.isSignUpActive = panel === 'register';
     },
-    handleLogin() {
-      const { phone, password } = this.login;
-      window.location.href = '/home';// 注意这里假设您的登录表单使用的是 phone 字段
-      if (phone && password) {
-        fetch('/api/login', {
+
+    handleSignUp() {
+      const { phone, password, verificationCode } = this.signup;
+      if (phone && password && verificationCode) {
+        fetch('/api/sign', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -70,24 +74,20 @@ export default {
           body: JSON.stringify({
             phoneNumber: phone,
             password,
+            verificationCode
           })
         })
             .then(response => {
-              if (response.ok) { // 响应状态码为2xx表示成功
-                // 如果不需要使用返回的数据，可以省略解析步骤
-                // 或者解析后不使用 data
-                return response.json(); // 解析返回的用户对象
+              if (response.status === 201) {
+                alert('注册成功！');
+                window.location.href = '/login';
               } else {
-                throw new Error('登录失败');
+                throw new Error('服务器返回错误状态码');
               }
-            })
-            .then(() => { // 这里可以不使用 data
-              alert('登录成功！');
-              window.location.href = '/home.vue';
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('登录失败，请检查您的信息或网络连接。');
+              alert('注册失败，请检查您的信息或网络连接。');
             });
       } else {
         alert('请填写所有必填项！');
@@ -122,8 +122,8 @@ export default {
     goToResetPassword() {
       window.location.href = "/resetPassWord"; // 跳转到重置密码页面
     },
-    goToRegister() {
-      this.$router.push('/register');
+    goToLogin() {
+      this.$router.push('/');
     }
   }
 };
@@ -159,6 +159,7 @@ template {
   display: grid;
   height: 100vh;
   place-items: center;
+  justify-content: center;
 }
 
 .form__title {
@@ -186,17 +187,12 @@ template {
   max-width: var(--max-width);
   overflow: hidden;
   position: relative;
-  /*让容器居中*/
-  margin: auto auto;
-  /*让容器垂直居中*/
-  top: 50%;
-  transform: translateY(60%);
   width: 100%;
 }
 
 .container__form {
   height: 100%;
-  position: absolute;
+  /* position: absolute;*/
   top: 0;
   transition: all 0.6s ease-in-out;
 }
@@ -285,9 +281,6 @@ template {
   transform: translateX(0);
 }
 
-.container.right-panel-active .overlay--right {
-  transform: translateX(20%);
-}
 
 .btn {
   background-color: var(--blue);
@@ -342,21 +335,6 @@ template {
 }
 .get-verification-code:hover {
   text-decoration: underline; /* 鼠标悬停时添加下划线 */
-}
-
-@keyframes show {
-
-  0%,
-  49.99% {
-    opacity: 0;
-    z-index: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 1;
-    z-index: 5;
-  }
 }
 
 </style>

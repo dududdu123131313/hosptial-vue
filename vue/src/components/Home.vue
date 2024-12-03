@@ -1,14 +1,13 @@
-<!-- App.vue -->
 <template>
-    <div id="app">
+    <div id="homeComponent">
       <div class="nav-bar">
         <h1 class="nav-title">南京市浦口人民医院</h1>
         <!-- 导航链接，使用router-link -->
-        <router-link to="/" class="nav-item">主页</router-link>
+        <router-link to="/home" class="nav-item">主页</router-link>
         <router-link to="/registration" class="nav-item">预约挂号</router-link>
         <router-link to="/my-registrations" class="nav-item">我的挂号</router-link>
         <router-link to="/my-bills" class="nav-item">我的账单</router-link>
-        <router-link to="/messages" class="nav-item">消息中心</router-link>
+        <router-link to="/my-messages" class="nav-item">消息中心</router-link>
         <router-link to="/profile" class="nav-item">个人中心</router-link>
       </div>
       <div class="main-content">
@@ -87,7 +86,7 @@
     padding: 20px;
     width: 100%; /* Ensure the main content takes up the remaining space */
     
-    background: 100;
+
     
   }
   </style>
