@@ -7,11 +7,15 @@
     <p>就诊时间: {{ formatTime(registration.visitTime) }}</p>
     <p>挂号时间: {{ formatTime(registration.registrationTime) }}</p>
     <p>就诊人: {{ registration.name }}</p>
+    <p>就诊号: {{ registration.medicalNumber }}</p>
+    <p>订单编号: {{ registration.id }}</p>
     <button class="cancel - button" @click="cancelAppointment">取消预约</button>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   props: {
     registration: {
@@ -35,9 +39,21 @@ export default {
       return '';
     },
     cancelAppointment() {
-      // 在这里添加取消预约的逻辑
-      alert('预约已取消');
-      // 发出请求到后端API来取消预约
+      // 发送请求到后端API来取消预约
+      axios.post(`http://10.3.83.194:8088/registrationLists/cancel/${this.registration.id}`)
+        .then(response => {
+          if (response.status === 200) {
+            alert('预约已取消');
+            // 从列表中删除这条记录
+            this.$emit('delete-appointment', this.registration);
+          } else {
+            alert('预约取消失败: ' + response.data.message);
+          }
+        })
+        .catch(error => {
+          console.error('取消预约出错:', error);
+          alert('预约取消失败，请重试。');
+        });
     }
   }
 };
